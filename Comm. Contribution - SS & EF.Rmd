@@ -1,0 +1,185 @@
+---
+title: "Community Contribution"
+author: "Sebastian Steiner & Elliot Frank"
+output: 
+  html_document: 
+    fig_width: 5
+    fig_height: 3.5
+---
+
+```{r setup, include=FALSE}
+# this prevents package loading message from appearing in the rendered version of your problem set
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# loading required packages
+library(tidyverse)
+library(openintro)
+library(descriptr)
+library(assertable)
+library(gapminder)
+library(ggridges)
+library(stringr)
+
+
+library(gcookbook)
+```
+
+In this tutorial, we'll explain the basic components of a vector field graph
+using the. Vector field graphs have a number of important
+applications such as ('PLACEHOLDER').
+
+From our research, the documentation available could use improvement, and thus our 
+goal is provide an accessible explanation of how to build such graphs in R. To 
+keep things clear, we'll build an example data set as we go, explaining all of 
+the required components of a vector field graph. Hopefully, after reading this
+tutorial, you'll be able to easily identify the required components for vector
+graphs in future data sets.
+
+In our example data set, each observation represents one arrow, or vector, to be 
+plotted on our graph. As vectors communicate movement, each arrow will have a
+starting point and an end point. Before we dive in, we've listed below the four 
+data columns required for building a vector graph, each of which we will build 
+in our example data set.
+
+- x_axis: horizontal value of the starting point for a given vector
+- y_axis: vertical value of the starting point for a given vector
+- x_pull: strength of force pulling vector in horizontal direction
+- y_pull: strength of force pulling vector in vertical direction 
+
+First, we will require two data columns serving as x and y coordinates for 
+placement of the arrow on the graph. These initial coordinates, which we 
+will call x_axis and y_axis, will place the base of each arrow on the vector 
+graphs. Stated otherwise, together the x_axis and y_axis columns provide the 
+starting point for each arrow on the graph.
+
+In the code below, we start building our example data set by placing the base
+of each vector on all positive integer values of a 10 X 10 grid, by assigning 
+values to the x_axis and y_axis columns. 
+
+```{r}
+# EF: creating a blank data frame with four required columns
+data_frame = data.frame(x_axis = numeric(), y_axis = numeric())
+
+# EF: generating evenly distributed values for x y coordinates
+for(i in 1:10) {
+  for(j in 1:10) {
+    vec <- c(i, j) 
+    data_frame[nrow(data_frame) + 1, ] <- vec
+  }
+}
+
+# EF: plotting points for illustrative purposes
+ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
+    scale_x_continuous(breaks = seq(0,10,1)) + 
+    scale_y_continuous(breaks = seq(0,10,1)) +
+    geom_segment(aes(xend = x_axis+(0.05), yend = y_axis))
+```
+In graphing the plot, we've assigned x_axis and y_axis values as the axis values
+of the entire chart, again, as the columns place each arrow. The geom_segment
+function plots the lines, we've added an endpoint of 0.05 to the x_axis so that
+the base of each vector can be seen above.
+
+After plotting the starting points of all vectors, we now need to
+determine where all of our vectors will end. This will be determined by 
+the x_pull and y_pull columns. It's important to note that these columns
+will not provide the end coordinates, but a measure of the directions in which 
+each vector is pulled. The x_pull and y_pull variables will indicate how far 
+from the base the arrow should extend in the given direction.
+
+You'll notice in the code below, the x_pull and y_pull values are being added
+to the starting point values (x_axis & y_axis) in the geom_segment function. 
+The variables within aes which dictate the end points of a vector are conveniently 
+named 'xend' and 'yend'. By altering the 'xend' and 'yend' values, we place
+the coordinates of a vectors endpoint.
+
+For example, if I set only the y_pull equal to 0.5, you'll notice that all of the 
+arrows are being pulled in an upward direction.
+
+```{r}
+data_frame$x_pull <- 0
+data_frame$y_pull <- 0.5
+
+# EF: plotting points for illustrative purposes
+ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
+    scale_x_continuous(breaks = seq(0,10,1)) + 
+    scale_y_continuous(breaks = seq(0,10,1)) +
+    geom_segment(aes(xend = x_axis + (x_pull), 
+                     yend = y_axis + (y_pull)), 
+                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+```
+Conversely, if I set only the x_pull equal to 0.5, you'll notice that all of the 
+arrows are being pulled to the right direction.
+
+```{r}
+data_frame$x_pull <- 0.5
+data_frame$y_pull <- 0
+
+# EF: plotting points for illustrative purposes
+ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
+    scale_x_continuous(breaks = seq(0,10,1)) + 
+    scale_y_continuous(breaks = seq(0,10,1)) +
+    geom_segment(aes(xend = x_axis + (x_pull), 
+                     yend = y_axis + (y_pull)), 
+                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+```
+Lastly, if we set both x_pull and y_pull equal to 5, then the x and y forces are
+offsetting, and the arrows point in a 45 degree angle. 
+
+```{r}
+data_frame$x_pull <- 0.5
+data_frame$y_pull <- 0.5
+
+ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
+    scale_x_continuous(breaks = seq(0,10,1)) + 
+    scale_y_continuous(breaks = seq(0,10,1)) +
+    geom_segment(aes(xend = x_axis + (x_pull), 
+                     yend = y_axis + (y_pull)), 
+                     arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+```
+An important note, different data sets may require different scaling.
+One may have to divide the x_pull and y_pull fields in order for the lines to
+fit clearly on the graph. One must ensure that the scale of the x_pull and y_pull
+fields is smaller than the x_axis and y_axis fields, or else the arrows will overlap.
+
+Lastly, we've input random numbers into x_pull and y_pull values, to show that 
+the format is completely flexible and doesn't require consistent value changes
+to the x_pull and y_pull variables.
+
+```{r}
+data_frame$x_pull <- runif(nrow(data_frame), min=-0.5, max=0.5)
+data_frame$y_pull <- runif(nrow(data_frame), min=-0.5, max=0.5)
+
+ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
+    scale_x_continuous(breaks = seq(0,10,1)) + 
+    scale_y_continuous(breaks = seq(0,10,1)) +
+    geom_segment(aes(xend = x_axis + (x_pull), 
+                     yend = y_axis + (y_pull)), 
+                     arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+```
+Now that we've covered the basics, let's show how we can customize vector field
+graphs. For this example, I'll create a new data set with x_axis and y_axis values
+ranging from -10 to 10.
+
+```{r}
+vector_frame = data.frame(x_axis = numeric(), y_axis = numeric())
+
+# EF: generating evenly distributed values for x y coordinates
+for(i in -10:10) {
+  for(j in -10:10) {
+    vec <- c(i, j) 
+    vector_frame[nrow(vector_frame) + 1, ] <- vec
+  }
+}
+
+vector_frame$x_pull <- with(vector_frame, -x_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+vector_frame$y_pull <- with(vector_frame, y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+
+ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=x_pull)) +
+    scale_colour_continuous(low = "dodgerblue", high = "darkred") +
+    scale_x_continuous(breaks = seq(-10,10,1)) + 
+    scale_y_continuous(breaks = seq(-10,10,1)) +
+    geom_segment(aes(xend = x_axis + (x_pull), 
+                     yend = y_axis + (y_pull)), 
+                     arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+    geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15)
+```
