@@ -24,6 +24,10 @@ library(stringr)
 library(gcookbook)
 ```
 
+# A Tutorial for Vector Fields in R
+
+## Getting Started with Vector Fields
+
 In this tutorial, we'll explain the basic components of a vector field graph
 using the. Vector field graphs have a number of important
 applications such as ('PLACEHOLDER').
@@ -136,10 +140,6 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
                      yend = y_axis + (y_pull)), 
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
 ```
-An important note, different data sets may require different scaling.
-One may have to divide the x_pull and y_pull fields in order for the lines to
-fit clearly on the graph. One must ensure that the scale of the x_pull and y_pull
-fields is smaller than the x_axis and y_axis fields, or else the arrows will overlap.
 
 Lastly, we've input random numbers into x_pull and y_pull values, to show that 
 the format is completely flexible and doesn't require consistent value changes
@@ -156,9 +156,64 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
                      yend = y_axis + (y_pull)), 
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
 ```
-Now that we've covered the basics, let's show how we can customize vector field
-graphs. For this example, I'll create a new data set with x_axis and y_axis values
-ranging from -10 to 10.
+
+
+##Tips and Tricks to Plotting Vector Fields
+
+Now that we've covered the basics, we will share some advice on how to plot 
+high-quality vector fields. 
+
+###Arrow Length
+It is important to consider the length of arrows when plotting vector fields because
+if arrows are too long, they will overlap and make the plot difficult to interpret 
+(see example below).
+
+```{r}
+data_frame$x_pull <- 5
+data_frame$y_pull <- 1
+
+# SS: plotting points for illustrative purposes
+ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
+    scale_x_continuous(breaks = seq(0,10,1)) + 
+    scale_y_continuous(breaks = seq(0,10,1)) +
+    geom_segment(aes(xend = x_axis + (x_pull), 
+                     yend = y_axis + (y_pull)), 
+                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+```
+
+As you can see, even with this fairly simple plot that has all vectors pointing
+x+5 and y+1, it appears messy and difficult to interpret due to overlapping arrows.
+Therefore, we recommend scaling down the x_pull and y_pull vectors, to avoid overlap, 
+as shown below (note it is good practice to scale the x_pull and y_pull by the same
+amount)
+
+```{r}
+# Assume this is the raw x_pull & y_pull data
+data_frame$x_pull <- 5
+data_frame$y_pull <- 1
+
+#Scale vector data
+data_frame$x_pull <- data_frame$x_pull / 10
+data_frame$y_pull <- data_frame$y_pull / 10
+
+# SS: plotting points for illustrative purposes
+ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
+    scale_x_continuous(breaks = seq(0,10,1)) + 
+    scale_y_continuous(breaks = seq(0,10,1)) +
+    geom_segment(aes(xend = x_axis + (x_pull), 
+                     yend = y_axis + (y_pull)), 
+                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+```
+
+
+###Arrow Color
+As you may have noticed, when scaling down the arrows, the absolute length of the 
+arrows loses meaning and the relative length of an arrow compared to others in the
+vector field becomes the area of emphasis. While this qualitative representation 
+is acceptable in most cases of plotting vector fields, it is possible to add color
+to arrows based on their magnitude - see below. Moreover, above the colorbar we can 
+add a title explaining the units that the colors represent (eg m/s).
+
 
 ```{r}
 vector_frame = data.frame(x_axis = numeric(), y_axis = numeric())
@@ -172,9 +227,39 @@ for(i in -10:10) {
 }
 
 vector_frame$x_pull <- with(vector_frame, -x_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
-vector_frame$y_pull <- with(vector_frame, y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+vector_frame$y_pull <- with(vector_frame, 2*y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+vector_frame$mag    <- sqrt( (vector_frame$x_pull^2) + (vector_frame$y_pull)^2 ) 
 
-ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=x_pull)) +
+ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=mag) )+
+    #scale_colour_continuous(low = "dodgerblue", high = "darkred") +
+    scale_colour_continuous(name = "Choose units") +
+    scale_x_continuous(breaks = seq(-10,10,1)) + 
+    scale_y_continuous(breaks = seq(-10,10,1)) +
+    geom_segment(aes(xend = x_axis + (x_pull), 
+                     yend = y_axis + (y_pull)), 
+                     arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+    geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15)
+```
+
+In the following plot, we have changed the arrow color to be based of x_pull value,
+rather than magnitude. This could be useful if the flow in one direction is more 
+important than the other. 
+
+```{r}
+vector_frame = data.frame(x_axis = numeric(), y_axis = numeric())
+
+# EF: generating evenly distributed values for x y coordinates
+for(i in -10:10) {
+  for(j in -10:10) {
+    vec <- c(i, j) 
+    vector_frame[nrow(vector_frame) + 1, ] <- vec
+  }
+}
+
+vector_frame$x_pull <- with(vector_frame, -x_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+vector_frame$y_pull <- with(vector_frame, 2*y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+
+ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=x_pull) )+
     scale_colour_continuous(low = "dodgerblue", high = "darkred") +
     scale_x_continuous(breaks = seq(-10,10,1)) + 
     scale_y_continuous(breaks = seq(-10,10,1)) +
@@ -183,3 +268,24 @@ ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=x_pull)) +
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
     geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15)
 ```
+
+###Spacing
+
+###Dealing with 3D
+
+##Application
+
+###Flow
+
+###Stability Analysis
+
+###Extra
+
+An important note, different data sets may require different scaling.
+One may have to divide the x_pull and y_pull fields in order for the lines to
+fit clearly on the graph. One must ensure that the scale of the x_pull and y_pull
+fields is smaller than the x_axis and y_axis fields, or else the arrows will overlap.
+
+Now that we've covered the basics, let's show how we can customize vector field
+graphs. For this example, I'll create a new data set with x_axis and y_axis values
+ranging from -10 to 10.
