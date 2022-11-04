@@ -19,6 +19,7 @@ library(assertable)
 library(gapminder)
 library(ggridges)
 library(stringr)
+library(patchwork)
 
 
 library(gcookbook)
@@ -231,7 +232,6 @@ vector_frame$y_pull <- with(vector_frame, 2*y_axis/(sqrt((x_axis^2) + (y_axis^2)
 vector_frame$mag    <- sqrt( (vector_frame$x_pull^2) + (vector_frame$y_pull)^2 ) 
 
 ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=mag) )+
-    #scale_colour_continuous(low = "dodgerblue", high = "darkred") +
     scale_colour_continuous(name = "Choose units") +
     scale_x_continuous(breaks = seq(-10,10,1)) + 
     scale_y_continuous(breaks = seq(-10,10,1)) +
@@ -269,9 +269,149 @@ ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=x_pull) )+
     geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15)
 ```
 
+
+
 ###Spacing
 
+Vector fields often describe flows in the continuous space, which means there could
+be an infinite number of vectors in the plot. To overcome this, we usually sample
+uniformly spaced points in the field and plot their vectors. Choosing the point 
+spacing is important because if we down-sample too much we lose information and if
+don't down-sample enough the vector field becomes cluttered.
+
+```{r}
+vector_frame1 = data.frame(x_axis = numeric(), y_axis = numeric())
+
+# SS: generating evenly distributed values for x y coordinates
+for(i in seq(-10, 10, by=0.4)) {
+  for(j in seq(-10, 10, by=0.4)) {
+    vec <- c(i, j) 
+    vector_frame1[nrow(vector_frame1) + 1, ] <- vec
+  }
+}
+
+vector_frame1$x_pull <- with(vector_frame1, -x_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+vector_frame1$y_pull <- with(vector_frame1, 2*y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+
+p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
+        scale_x_continuous(breaks = seq(-10,10)) + 
+        scale_y_continuous(breaks = seq(-10,10)) +
+        geom_segment(aes(xend = x_axis + (x_pull), 
+                         yend = y_axis + (y_pull)), 
+                         arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+        geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
+        ggtitle("Vector Field with not enough spacing")
+
+
+
+
+vector_frame2 = data.frame(x_axis = numeric(), y_axis = numeric())
+
+# SS: generating evenly distributed values for x y coordinates
+for(i in seq(-10, 10, by=5)) {
+  for(j in seq(-10, 10, by=5)) {
+    vec <- c(i, j) 
+    vector_frame2[nrow(vector_frame2) + 1, ] <- vec
+  }
+}
+
+vector_frame2$x_pull <- with(vector_frame2, -x_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+vector_frame2$y_pull <- with(vector_frame2, 2*y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+
+p2 <- ggplot(vector_frame2, aes(x = x_axis, y = y_axis) )+
+        scale_x_continuous(breaks = seq(-10,10)) + 
+        scale_y_continuous(breaks = seq(-10,10)) +
+        geom_segment(aes(xend = x_axis + (x_pull), 
+                         yend = y_axis + (y_pull)), 
+                         arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+        geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
+        ggtitle("Vector Field with too much spacing")
+
+p1 + p2
+
+
+    
+```
+
+As shown above, at the extremes of spacing, vector fields are difficult to interpret.
+Hence, there must be an optimal spacing between the too. As illustrated below, this 
+optimal spacing also depends on arrow length because closer spacing require shorter
+arrow lengths and larger spacings allow longer arrow lengths. In other words, there
+is a trade-off between vector spacing and vector length.
+
+```{r}
+vector_frame1 = data.frame(x_axis = numeric(), y_axis = numeric())
+
+# SS: generating evenly distributed values for x y coordinates
+for(i in seq(-10, 10, by=2)) {
+  for(j in seq(-10, 10, by=2)) {
+    vec <- c(i, j) 
+    vector_frame1[nrow(vector_frame1) + 1, ] <- vec
+  }
+}
+
+vector_frame1$x_pull <- with(vector_frame1, -2*x_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+vector_frame1$y_pull <- with(vector_frame1, 3*y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+
+p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
+        scale_x_continuous(breaks = seq(-10,10)) + 
+        scale_y_continuous(breaks = seq(-10,10)) +
+        geom_segment(aes(xend = x_axis + (x_pull), 
+                         yend = y_axis + (y_pull)), 
+                         arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+        geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
+        ggtitle("Opitmal Vector Field with more spacing")
+
+
+
+
+vector_frame2 = data.frame(x_axis = numeric(), y_axis = numeric())
+
+# SS: generating evenly distributed values for x y coordinates
+for(i in seq(-10, 10, by=1)) {
+  for(j in seq(-10, 10, by=1)) {
+    vec <- c(i, j) 
+    vector_frame2[nrow(vector_frame2) + 1, ] <- vec
+  }
+}
+
+vector_frame2$x_pull <- with(vector_frame2, -x_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+vector_frame2$y_pull <- with(vector_frame2, y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
+
+p2 <- ggplot(vector_frame2, aes(x = x_axis, y = y_axis) )+
+        scale_x_continuous(breaks = seq(-10,10)) + 
+        scale_y_continuous(breaks = seq(-10,10)) +
+        geom_segment(aes(xend = x_axis + (x_pull), 
+                         yend = y_axis + (y_pull)), 
+                         arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+        geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
+        ggtitle("Optimal Vector Field with less spacing")
+
+p1 + p2
+
+```
+
+
 ###Dealing with 3D
+
+So far we have looked at vector fields in 2 dimensions. However, it is common to 
+for vector fields to have 3 dimensions. While it is tempting to try to 3D plots for
+these vector fields, we strongly recommend against this as they are confusing. As
+shown in the plot below which had been taken from [this page](https://stackoverflow.com/questions/7130474/3d-vector-field-in-matplotlib)
+
+![](Images/3DVF.png)
+
+Therefore, the first thing we recommend you to consider when plotting 3D vector
+fields is: *Do I actually need to plot in 3 dimensions?*
+
+In some cases one dimension may have a small contribution to the overall flow. 
+You could check this by comparing contributions of each direction to the magnitude
+of each vector using the following formulas x^2/ (x^2+y^2+z^2) , y^2/ (x^2+y^2+z^2)
+& z^2/ (x^2+y^2+z^2).
+
+Another aspect to consider is the symmetry in the environment of the flow.....
+
+
 
 ##Application
 
