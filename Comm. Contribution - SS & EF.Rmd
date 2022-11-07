@@ -1,12 +1,47 @@
 ---
-title: "Community Contribution"
+title: "Tutorial for Vector Fields in R"
 author: "Sebastian Steiner & Elliot Frank"
 output: 
   html_document: 
     fig_width: 5
     fig_height: 3.5
 ---
+<style type="text/css">
+.main-container {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
+body{ /* Normal  */
+      font-size: 12px;
+  }
+td {  /* Table  */
+  font-size: 8px;
+}
+h1.title {
+  font-size: 38px;
+  color: black;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: black;
+}
+h2 { /* Header 2 */
+    font-size: 20px;
+  color: black;
+}
+h3 { /* Header 3 */
+  font-size: 16px;
+  color: black;
+}
+code.r{ /* Code block */
+    font-size: 12px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 12px;
+}
+</style>
 ```{r setup, include=FALSE}
 # this prevents package loading message from appearing in the rendered version of your problem set
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
@@ -17,21 +52,15 @@ library(openintro)
 library(descriptr)
 library(assertable)
 library(gapminder)
-library(ggridges)
 library(stringr)
 library(patchwork)
-
-
 library(gcookbook)
 ```
-
-# A Tutorial for Vector Fields in R
-
 ## Getting Started with Vector Fields
 
-In this tutorial, we'll explain the basic components of a vector field graph
-using the. Vector field graphs have a number of important
-applications such as ('PLACEHOLDER').
+Vector field graphs have a number of important applications throughout science, 
+engineering, and math. In this tutorial, we'll explain the basic components of 
+a vector field graphs, and how to build them in R. 
 
 From our research, the documentation available could use improvement, and thus our 
 goal is provide an accessible explanation of how to build such graphs in R. To 
@@ -61,11 +90,11 @@ In the code below, we start building our example data set by placing the base
 of each vector on all positive integer values of a 10 X 10 grid, by assigning 
 values to the x_axis and y_axis columns. 
 
-```{r}
-# EF: creating a blank data frame with four required columns
+```{r, fig.align = 'center'}
+# Creating a blank data frame with four required columns
 data_frame = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# EF: generating evenly distributed values for x y coordinates
+# Generating evenly distributed values for x y coordinates
 for(i in 1:10) {
   for(j in 1:10) {
     vec <- c(i, j) 
@@ -73,13 +102,14 @@ for(i in 1:10) {
   }
 }
 
-# EF: plotting points for illustrative purposes
+# Plotting points for illustrative purposes
 ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_x_continuous(breaks = seq(0,10,1)) + 
     scale_y_continuous(breaks = seq(0,10,1)) +
     geom_segment(aes(xend = x_axis+(0.05), yend = y_axis))
 ```
-In graphing the plot, we've assigned x_axis and y_axis values as the axis values
+
+In graphing the plot, we've assigned the x_axis and y_axis values as the axis values
 of the entire chart, again, as the columns place each arrow. The geom_segment
 function plots the lines, we've added an endpoint of 0.05 to the x_axis so that
 the base of each vector can be seen above.
@@ -93,18 +123,18 @@ from the base the arrow should extend in the given direction.
 
 You'll notice in the code below, the x_pull and y_pull values are being added
 to the starting point values (x_axis & y_axis) in the geom_segment function. 
-The variables within aes which dictate the end points of a vector are conveniently 
+The variables within 'aes', which dictate the end points of a vector are conveniently 
 named 'xend' and 'yend'. By altering the 'xend' and 'yend' values, we place
 the coordinates of a vectors endpoint.
 
 For example, if I set only the y_pull equal to 0.5, you'll notice that all of the 
 arrows are being pulled in an upward direction.
 
-```{r}
+```{r, fig.align = 'center'}
 data_frame$x_pull <- 0
 data_frame$y_pull <- 0.5
 
-# EF: plotting points for illustrative purposes
+# Plotting points for illustrative purposes
 ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_x_continuous(breaks = seq(0,10,1)) + 
     scale_y_continuous(breaks = seq(0,10,1)) +
@@ -112,14 +142,15 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
                      yend = y_axis + (y_pull)), 
                  arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
 ```
+
 Conversely, if I set only the x_pull equal to 0.5, you'll notice that all of the 
 arrows are being pulled to the right direction.
 
-```{r}
+```{r, fig.align = 'center'}
 data_frame$x_pull <- 0.5
 data_frame$y_pull <- 0
 
-# EF: plotting points for illustrative purposes
+# Plotting points for illustrative purposes
 ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_x_continuous(breaks = seq(0,10,1)) + 
     scale_y_continuous(breaks = seq(0,10,1)) +
@@ -127,10 +158,11 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
                      yend = y_axis + (y_pull)), 
                  arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
 ```
-Lastly, if we set both x_pull and y_pull equal to 0.5, then the x and y forces are
+
+If we set both x_pull and y_pull equal to 0.5, then the x and y forces are
 offsetting, and the arrows point in a 45 degree angle. 
 
-```{r}
+```{r, fig.align = 'center'}
 data_frame$x_pull <- 0.5
 data_frame$y_pull <- 0.5
 
@@ -142,11 +174,11 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
 ```
 
-Lastly, we've input random numbers into x_pull and y_pull values, to show that 
-the format is completely flexible and doesn't require consistent value changes
-to the x_pull and y_pull variables.
+To provide another example, we've input random numbers into x_pull and y_pull 
+values, to show that the format is completely flexible and doesn't require 
+consistent value changes to the x_pull and y_pull variables.
 
-```{r}
+```{r, fig.align = 'center'}
 data_frame$x_pull <- runif(nrow(data_frame), min=-0.5, max=0.5)
 data_frame$y_pull <- runif(nrow(data_frame), min=-0.5, max=0.5)
 
@@ -158,22 +190,20 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
 ```
 
+## Tips and Tricks to Plotting Vector Fields
+Now that we've covered the basics, we'll provide guidance on how to make
+high-quality vector field graphs.
 
-##Tips and Tricks to Plotting Vector Fields
-
-Now that we've covered the basics, we will share some advice on how to plot 
-high-quality vector fields. 
-
-###Arrow Length
-It is important to consider the length of arrows when plotting vector fields because
-if arrows are too long, they will overlap and make the plot difficult to interpret 
+### Arrow Length
+It is important to consider the length of arrows when plotting vector fields, as
+input data may cause arrows to overlap, making the plot difficult to interpret 
 (see example below).
 
-```{r}
+```{r, fig.align = 'center'}
 data_frame$x_pull <- 5
 data_frame$y_pull <- 1
 
-# SS: plotting points for illustrative purposes
+# Plotting points for illustrative purposes
 ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_x_continuous(breaks = seq(0,10,1)) + 
     scale_y_continuous(breaks = seq(0,10,1)) +
@@ -182,22 +212,22 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
                  arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
 ```
 
-As you can see, even with this fairly simple plot that has all vectors pointing
-x+5 and y+1, it appears messy and difficult to interpret due to overlapping arrows.
-Therefore, we recommend scaling down the x_pull and y_pull vectors, to avoid overlap, 
+As you can see, even with a simple plot that has all vectors pointing in  the same
+direction, overlapping arrows makes it impossible to see the origin point of 
+arrows in the middle. Therefore, we recommend scaling down the x_pull and y_pull vectors,
 as shown below (note it is good practice to scale the x_pull and y_pull by the same
-amount)
+amount).
 
-```{r}
+```{r, fig.align = 'center'}
 # Assume this is the raw x_pull & y_pull data
 data_frame$x_pull <- 5
 data_frame$y_pull <- 1
 
-#Scale vector data
+# Scale vector data
 data_frame$x_pull <- data_frame$x_pull / 10
 data_frame$y_pull <- data_frame$y_pull / 10
 
-# SS: plotting points for illustrative purposes
+# Plotting points for illustrative purposes
 ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_x_continuous(breaks = seq(0,10,1)) + 
     scale_y_continuous(breaks = seq(0,10,1)) +
@@ -206,20 +236,19 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
                  arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
 ```
 
+### Arrow Color
+When scaling down the arrows, the absolute length of the arrows loses meaning,
+and distorts the relative strength of vectors in the graph. While this qualitative 
+representation is acceptable in most cases of plotting vector fields, it is 
+possible to add color to arrows based on their magnitude - see below. Moreover, 
+above the color bar we can add a title explaining the units that the colors 
+represent (eg m/s). For this example, we'll create a new data set with x_axis 
+and y_axis values ranging from -10 to 10.
 
-###Arrow Color
-As you may have noticed, when scaling down the arrows, the absolute length of the 
-arrows loses meaning and the relative length of an arrow compared to others in the
-vector field becomes the area of emphasis. While this qualitative representation 
-is acceptable in most cases of plotting vector fields, it is possible to add color
-to arrows based on their magnitude - see below. Moreover, above the color bar we can 
-add a title explaining the units that the colors represent (eg m/s).
-
-
-```{r}
+```{r, fig.align = 'center'}
 vector_frame = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# EF: generating evenly distributed values for x y coordinates
+# Generating evenly distributed values for x y coordinates
 for(i in -10:10) {
   for(j in -10:10) {
     vec <- c(i, j) 
@@ -232,7 +261,7 @@ vector_frame$y_pull <- with(vector_frame, 2*y_axis/(sqrt((x_axis^2) + (y_axis^2)
 vector_frame$mag    <- sqrt( (vector_frame$x_pull^2) + (vector_frame$y_pull)^2 ) 
 
 ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=mag) )+
-    scale_colour_continuous(name = "Choose units") +
+    scale_colour_continuous(name = "*Units") +
     scale_x_continuous(breaks = seq(-10,10,1)) + 
     scale_y_continuous(breaks = seq(-10,10,1)) +
     geom_segment(aes(xend = x_axis + (x_pull), 
@@ -241,14 +270,14 @@ ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=mag) )+
     geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15)
 ```
 
-In the following plot, we have changed the arrow color to be based of x_pull value,
-rather than magnitude. This could be useful if the flow in one direction is more 
-important than the other. 
+In the following plot, we have changed the arrow color to be based on the x_pull
+value, rather than magnitude. This could be useful if the flow in one direction 
+is more important than the other. 
 
-```{r}
+```{r, fig.align = 'center'}
 vector_frame = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# EF: generating evenly distributed values for x y coordinates
+# Generating evenly distributed values for x y coordinates
 for(i in -10:10) {
   for(j in -10:10) {
     vec <- c(i, j) 
@@ -269,20 +298,17 @@ ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=x_pull) )+
     geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15)
 ```
 
-
-
-###Spacing
-
-Vector fields often describe flows in the continuous space, which means there could
+## Spacing
+Vector fields often describe flows in continuous space, which means there could
 be an infinite number of vectors in the plot. To overcome this, we usually sample
 uniformly spaced points in the field and plot their vectors. Choosing the point 
-spacing is important because if we down-sample too much we lose information and if
-don't down-sample enough the vector field becomes cluttered.
+spacing is important because if we down-sample too much, we lose information.
+On the other hand if, don't down-sample enough, the vector field becomes cluttered.
 
-```{r}
+```{r, fig.align = 'center'}
 vector_frame1 = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# SS: generating evenly distributed values for x y coordinates
+# Generating evenly distributed values for x y coordinates
 for(i in seq(-10, 10, by=0.4)) {
   for(j in seq(-10, 10, by=0.4)) {
     vec <- c(i, j) 
@@ -302,12 +328,9 @@ p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
         ggtitle("Vector Field with not enough spacing")
 
-
-
-
 vector_frame2 = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# SS: generating evenly distributed values for x y coordinates
+# Generating evenly distributed values for x y coordinates
 for(i in seq(-10, 10, by=5)) {
   for(j in seq(-10, 10, by=5)) {
     vec <- c(i, j) 
@@ -328,21 +351,18 @@ p2 <- ggplot(vector_frame2, aes(x = x_axis, y = y_axis) )+
         ggtitle("Vector Field with too much spacing")
 
 p1 + p2
-
-
-    
 ```
 
 As shown above, at the extremes of spacing, vector fields are difficult to interpret.
-Hence, there must be an optimal spacing between the too. As illustrated below, this 
-optimal spacing also depends on arrow length because closer spacing require shorter
-arrow lengths and larger spacing allow longer arrow lengths. In other words, there
-is a trade-off between vector spacing and vector length.
+Hence, there must be an optimal spacing between the two. As illustrated below, this 
+optimal spacing also depends on arrow length because closer spacing requires shorter
+arrow lengths, while larger spacing allows longer arrow lengths. In other words, 
+there is a trade-off between vector spacing and vector length.
 
-```{r}
+```{r, fig.align = 'center'}
 vector_frame1 = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# SS: generating evenly distributed values for x y coordinates
+# Generating evenly distributed values for x y coordinates
 for(i in seq(-10, 10, by=2)) {
   for(j in seq(-10, 10, by=2)) {
     vec <- c(i, j) 
@@ -362,12 +382,9 @@ p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
         ggtitle("Opitmal Vector Field with more spacing")
 
-
-
-
 vector_frame2 = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# SS: generating evenly distributed values for x y coordinates
+# Generating evenly distributed values for x y coordinates
 for(i in seq(-10, 10, by=1)) {
   for(j in seq(-10, 10, by=1)) {
     vec <- c(i, j) 
@@ -391,9 +408,7 @@ p1 + p2
 
 ```
 
-
-###Dealing with 3D
-
+## Dealing with 3D
 So far we have looked at vector fields in 2 dimensions. However, it is common to 
 for vector fields to have 3 dimensions. While it is tempting to try to 3D plots for
 these vector fields, we strongly recommend against this as they are confusing. As
@@ -404,7 +419,7 @@ shown in the plot below which had been taken from [this page](https://stackoverf
 Therefore, the first thing we recommend you to consider when plotting 3D vector
 fields is: *Do I actually need to plot in 3 dimensions?*
 
-In some cases one dimension may have a small contribution to the overall flow, so
+In some cases, one dimension may have a small contribution to the overall flow, so
 it could be excluded from the plot. You could check this by comparing contributions 
 of each direction to the magnitude of each vector using the following formulas 
 x^2/ (x^2+y^2+z^2) , y^2/ (x^2+y^2+z^2) & z^2/ (x^2+y^2+z^2). 
@@ -419,16 +434,15 @@ in the z-x and z-y plots, see graph below for visual explanation.
 If it is not possible to remove one axis due to its small contribution or symmetry 
 in the vector field, we recommend plotting 3 cross-sectional vector fields in the 
 x-y, x-z and y-z planes. In this plot, the first thing to consider is where the 
-cross-sections are taken from in the 3D space. We recommend initially cross-sections 
+cross-sections are taken from in the 3D space. We recommend cross-sections 
 at the mid-point of each direction and adjusting the exact slices as appropriate. 
 In the code below, we create a 3D vector field, show how to extract the midpoints 
-of each axis and plot vector fields at the cross-sections of these midpoints.
+of each axis, and plot vector fields at the cross-sections of these midpoints.
 
-
-```{r}
+```{r, fig.align = 'center'}
 vector_frame = data.frame(x_axis = numeric(), y_axis = numeric(), z_axis = numeric()) 
 
-# SS: generating evenly distributed values for x y coordinates
+# Generating evenly distributed values for x y coordinates
 for(i in -5:5) {
   for(j in -5:5) {
     for(k in -5:5) {
@@ -483,19 +497,14 @@ yz <- ggplot(yz_plot, aes(x = y_axis, y = z_axis) )+
         ggtitle("y-z cross-section")
 
 xy + xz + yz + plot_layout(ncol=2)
-
-
 ```
 
-
-
-##Application
+## Application
 
 Now that we've covered the fundamentals of plotting vector fields, we will briefly
 discuss some of their applications.
 
-
-###Flow
+### Flow
 
 Using vector fields to visualize flow is extremely important in fluid mechanics.
 Examples of its application include:
@@ -503,8 +512,7 @@ Examples of its application include:
 2) Discovering the sources and sinks of pressure fields in meteorology
 3) Modelling flow through blood vessels with stents
 
-
-###Stability Analysis
+### Stability Analysis
 
 Stability analysis models the long-term affects of small perturbations in initial
 conditions of dynamical systems. Using the differential equations that describe 
@@ -513,28 +521,26 @@ nature of fixed points in the system (ie are the fixed points, stable, unstable,
 etc...). The figure below illustrates several types of fixed points:
 
 ![](Images/FP.png)
+
 [Source: https://www.sciencedirect.com/science/article/pii/S0021929018302239](https://www.sciencedirect.com/science/article/pii/S0021929018302239)
 
 Examples applications of stability analysis include modelling:
-1) Firing rates in computational neuroscience
-2) Gene regulation networks
-3) Population dynamics
+
+1. Firing rates in computational neuroscience
+2. Gene regulation networks
+3. Population dynamics
 
 Therefore, given the differential equations describing the system, we can generate
 a data frame with the vectors at points in the environment. Then, using the skills
 learnt in this tutorial we can plot the vector fields, find the fixed points and
 determine their nature. 
 
-###Conclusion
+### Conclusion
+Overall, the motivation for our project was to provide a clear, easily accessible
+tutorial for building vector graphs. As engineering students, we have encountered
+vector graphs in many of our classes, but we found the existing documentation ([Vectorfield Recipe](https://r-graphics.org/recipe-miscgraph-vectorfield)) to be unnecessarily 
+confusing, while also overlooking the basics of getting started. In all, we learned 
+how to make vector graphs, and feel we successfully capture the basic principles 
+in an accessible format for other readers. We don't feel as if there are any 
+major changes we'd make in improving the article.
 
-
-###Extra
-
-An important note, different data sets may require different scaling.
-One may have to divide the x_pull and y_pull fields in order for the lines to
-fit clearly on the graph. One must ensure that the scale of the x_pull and y_pull
-fields is smaller than the x_axis and y_axis fields, or else the arrows will overlap.
-
-Now that we've covered the basics, let's show how we can customize vector field
-graphs. For this example, I'll create a new data set with x_axis and y_axis values
-ranging from -10 to 10.
