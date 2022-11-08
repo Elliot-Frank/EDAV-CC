@@ -377,8 +377,8 @@ vector_frame1$x_pull <- with(vector_frame1, -2*x_axis/(sqrt((x_axis^2) + (y_axis
 vector_frame1$y_pull <- with(vector_frame1, 3*y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
 
 p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
-        scale_x_continuous(breaks = seq(-10,10)) + 
-        scale_y_continuous(breaks = seq(-10,10)) +
+        scale_x_continuous(breaks = seq(-10,10,2)) + 
+        scale_y_continuous(breaks = seq(-10,10,2)) +
         geom_segment(aes(xend = x_axis + (x_pull), 
                          yend = y_axis + (y_pull)), 
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
@@ -401,8 +401,8 @@ vector_frame2$x_pull <- with(vector_frame2, -x_axis/(sqrt((x_axis^2) + (y_axis^2
 vector_frame2$y_pull <- with(vector_frame2, y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
 
 p2 <- ggplot(vector_frame2, aes(x = x_axis, y = y_axis) )+
-        scale_x_continuous(breaks = seq(-10,10)) + 
-        scale_y_continuous(breaks = seq(-10,10)) +
+        scale_x_continuous(breaks = seq(-10,10,2)) + 
+        scale_y_continuous(breaks = seq(-10,10,2)) +
         geom_segment(aes(xend = x_axis + (x_pull), 
                          yend = y_axis + (y_pull)), 
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
