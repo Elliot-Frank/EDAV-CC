@@ -60,14 +60,14 @@ library(gcookbook)
 
 Vector field graphs have a number of important applications throughout science, 
 engineering, and math. In this tutorial, we'll explain the basic components of 
-a vector field graphs, and how to build them in R. 
+vector field graphs, and how to build them in R. 
 
 From our research, the documentation available could use improvement, and thus our 
 goal is provide an accessible explanation of how to build such graphs in R. To 
 keep things clear, we'll build an example data set as we go, explaining all of 
 the required components of a vector field graph. Hopefully, after reading this
-tutorial, you'll be able to easily identify the required components for vector
-graphs in future data sets.
+tutorial, identifying the required components for vector graphs will be easier 
+when handling these data sets in the future.
 
 In our example data set, each observation represents one arrow, or vector, to be 
 plotted on our graph. As vectors communicate movement, each arrow will have a
@@ -106,7 +106,8 @@ for(i in 1:10) {
 ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_x_continuous(breaks = seq(0,10,1)) + 
     scale_y_continuous(breaks = seq(0,10,1)) +
-    geom_segment(aes(xend = x_axis+(0.05), yend = y_axis))
+    geom_segment(aes(xend = x_axis+(0.05), yend = y_axis)) +
+    coord_fixed()
 ```
 
 In graphing the plot, we've assigned the x_axis and y_axis values as the axis values
@@ -140,7 +141,8 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_y_continuous(breaks = seq(0,10,1)) +
     geom_segment(aes(xend = x_axis + (x_pull), 
                      yend = y_axis + (y_pull)), 
-                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+    coord_fixed()
 ```
 
 Conversely, if I set only the x_pull equal to 0.5, you'll notice that all of the 
@@ -156,7 +158,8 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_y_continuous(breaks = seq(0,10,1)) +
     geom_segment(aes(xend = x_axis + (x_pull), 
                      yend = y_axis + (y_pull)), 
-                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+    coord_fixed()
 ```
 
 If we set both x_pull and y_pull equal to 0.5, then the x and y forces are
@@ -171,7 +174,8 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_y_continuous(breaks = seq(0,10,1)) +
     geom_segment(aes(xend = x_axis + (x_pull), 
                      yend = y_axis + (y_pull)), 
-                     arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+                     arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+    coord_fixed()
 ```
 
 To provide another example, we've input random numbers into x_pull and y_pull 
@@ -187,12 +191,85 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_y_continuous(breaks = seq(0,10,1)) +
     geom_segment(aes(xend = x_axis + (x_pull), 
                      yend = y_axis + (y_pull)), 
-                     arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+                     arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+    coord_fixed()
 ```
 
 ## Tips and Tricks to Plotting Vector Fields
 Now that we've covered the basics, we'll provide guidance on how to make
 high-quality vector field graphs.
+
+### Understanding arrow options
+When plotting arrows in *geom_segment*, we can control some features of the arrow
+in the following line:
+
+```
+arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+```
+
+- *length = unit(0.1, "cm")* defines the size of the arrow head
+- *size = 0.25 * defines arrow thickness
+
+For example, if we set both to 1, we get the following:
+
+```{r, fig.align = 'center'}
+data_frame$x_pull <- 0.5
+data_frame$y_pull <- 0.5
+
+ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
+    scale_x_continuous(breaks = seq(0,10,1)) + 
+    scale_y_continuous(breaks = seq(0,10,1)) +
+    geom_segment(aes(xend = x_axis + (x_pull), 
+                     yend = y_axis + (y_pull)), 
+                     arrow = arrow(length = unit(1, "cm")), size = 1) +
+    coord_fixed()
+```
+
+These arrow adjustments produce a low-quality plot, but they do highlight the options
+one has to represent arrows in vector fields.
+
+### Axis Scaling
+Vector fields commonly represent flows in space. Therefore, moving 1 unit in the
+x-direction has the same distance as moving 1 unit in the y-direction. If this 1:1
+ratio is not preserved, the vector field becomes distorted and difficult to
+interpret. Therefore, the axis in ggplot must be fixed using the following code: 
+
+```
+coord_fixed()
+```
+
+Below is an illustration of this discussion - note in both cases all vectors have 
+the form (0.5,0.5). While the distortion appears to be small, it is easily avoidable
+and preserves an accurate relationship between the x and y axes. 
+
+```{r, fig.align = 'center'}
+
+#Creating homogeneous vector field (1,1)
+data_frame$x_pull <- 0.5
+data_frame$y_pull <- 0.5
+
+#No coord_fixed
+ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
+  scale_x_continuous(breaks = seq(0,10,1)) + 
+  scale_y_continuous(breaks = seq(0,10,1)) +
+  geom_segment(aes(xend = x_axis + (x_pull), 
+                  yend = y_axis + (y_pull)), 
+                  arrow = arrow(length = unit(0.1, "cm")), size = 0.25)  +
+  ggtitle("Distorted plot without coord_fixed()")
+
+
+#Coord_fixed
+ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
+        scale_x_continuous(breaks = seq(0,10,1)) + 
+        scale_y_continuous(breaks = seq(0,10,1)) +
+        geom_segment(aes(xend = x_axis + (x_pull), 
+                        yend = y_axis + (y_pull)), 
+                        arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+        coord_fixed() +
+        ggtitle("High-quality plot with coord_fixed()")
+
+```
+
 
 ### Arrow Length
 It is important to consider the length of arrows when plotting vector fields, as
@@ -209,7 +286,8 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_y_continuous(breaks = seq(0,10,1)) +
     geom_segment(aes(xend = x_axis + (x_pull), 
                      yend = y_axis + (y_pull)), 
-                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+    coord_fixed()
 ```
 
 As you can see, even with a simple plot that has all vectors pointing in  the same
@@ -233,7 +311,8 @@ ggplot(data_frame, aes(x = x_axis, y = y_axis)) +
     scale_y_continuous(breaks = seq(0,10,1)) +
     geom_segment(aes(xend = x_axis + (x_pull), 
                      yend = y_axis + (y_pull)), 
-                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25)
+                 arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
+    coord_fixed()
 ```
 
 ### Arrow Color
@@ -267,7 +346,8 @@ ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=mag) )+
     geom_segment(aes(xend = x_axis + (x_pull), 
                      yend = y_axis + (y_pull)), 
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
-    geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15)
+    geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
+    coord_fixed()
 ```
 
 In the following plot, we have changed the arrow color to be based on the x_pull
@@ -295,7 +375,8 @@ ggplot(vector_frame, aes(x = x_axis, y = y_axis, colour=x_pull) )+
     geom_segment(aes(xend = x_axis + (x_pull), 
                      yend = y_axis + (y_pull)), 
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
-    geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15)
+    geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
+    coord_fixed()
 ```
 
 ## Spacing
@@ -327,7 +408,8 @@ p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
         ggtitle("Vector Field with not enough spacing") +
-        theme(text=element_text(size=7))
+        theme(text=element_text(size=9)) +
+        coord_fixed()
 
 vector_frame2 = data.frame(x_axis = numeric(), y_axis = numeric())
 
@@ -350,7 +432,8 @@ p2 <- ggplot(vector_frame2, aes(x = x_axis, y = y_axis) )+
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
         ggtitle("Vector Field with too much spacing") +
-        theme(text=element_text(size=7))
+        theme(text=element_text(size=9)) +
+        coord_fixed()
 
 p1 + p2
 ```
@@ -384,7 +467,8 @@ p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
         ggtitle("Opitmal Vector Field with more spacing") +
-        theme(text=element_text(size=7))
+        theme(text=element_text(size=9)) +
+        coord_fixed()
 
 vector_frame2 = data.frame(x_axis = numeric(), y_axis = numeric())
 
@@ -408,7 +492,8 @@ p2 <- ggplot(vector_frame2, aes(x = x_axis, y = y_axis) )+
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
         ggtitle("Optimal Vector Field with less spacing") +
-        theme(text=element_text(size=7))
+        theme(text=element_text(size=9)) +
+        coord_fixed()
 
 p1 + p2
 
@@ -485,7 +570,8 @@ xy <- ggplot(xy_plot, aes(x = x_axis, y = y_axis) )+
                      yend = y_axis + (y_pull)), 
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("x-y cross-section")
+        ggtitle("x-y cross-section") +
+        coord_fixed()
 
 xz <- ggplot(xz_plot, aes(x = x_axis, y = z_axis) )+
         scale_x_continuous(breaks = seq(-5,5,1)) + 
@@ -494,7 +580,8 @@ xz <- ggplot(xz_plot, aes(x = x_axis, y = z_axis) )+
                      yend = z_axis + (z_pull)), 
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("x-z cross-section")
+        ggtitle("x-z cross-section") +
+        coord_fixed()
 
 yz <- ggplot(yz_plot, aes(x = y_axis, y = z_axis) )+
         scale_x_continuous(breaks = seq(-5,5,1)) + 
@@ -503,7 +590,8 @@ yz <- ggplot(yz_plot, aes(x = y_axis, y = z_axis) )+
                      yend = z_axis + (z_pull)), 
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("y-z cross-section")
+        ggtitle("y-z cross-section") +
+        coord_fixed()
 
 xy + xz + yz + plot_layout(ncol=2)
 ```
