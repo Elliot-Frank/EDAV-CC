@@ -308,7 +308,7 @@ On the other hand if, don't down-sample enough, the vector field becomes clutter
 ```{r, fig.align = 'center'}
 vector_frame1 = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# Generating evenly distributed values for x y coordinates
+# Generating a dense vector field
 for(i in seq(-10, 10, by=0.4)) {
   for(j in seq(-10, 10, by=0.4)) {
     vec <- c(i, j) 
@@ -320,17 +320,18 @@ vector_frame1$x_pull <- with(vector_frame1, -x_axis/(sqrt((x_axis^2) + (y_axis^2
 vector_frame1$y_pull <- with(vector_frame1, 2*y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
 
 p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
-        scale_x_continuous(breaks = seq(-10,10)) + 
-        scale_y_continuous(breaks = seq(-10,10)) +
+        scale_x_continuous(breaks = seq(-10,10,2)) + 
+        scale_y_continuous(breaks = seq(-10,10,2)) +
         geom_segment(aes(xend = x_axis + (x_pull), 
                          yend = y_axis + (y_pull)), 
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("Vector Field with not enough spacing")
+        ggtitle("Vector Field with not enough spacing") +
+        theme(text=element_text(size=7))
 
 vector_frame2 = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# Generating evenly distributed values for x y coordinates
+# Generating a sparse vector field
 for(i in seq(-10, 10, by=5)) {
   for(j in seq(-10, 10, by=5)) {
     vec <- c(i, j) 
@@ -342,13 +343,14 @@ vector_frame2$x_pull <- with(vector_frame2, -x_axis/(sqrt((x_axis^2) + (y_axis^2
 vector_frame2$y_pull <- with(vector_frame2, 2*y_axis/(sqrt((x_axis^2) + (y_axis^2)) + 4))
 
 p2 <- ggplot(vector_frame2, aes(x = x_axis, y = y_axis) )+
-        scale_x_continuous(breaks = seq(-10,10)) + 
-        scale_y_continuous(breaks = seq(-10,10)) +
+        scale_x_continuous(breaks = seq(-10,10,2)) + 
+        scale_y_continuous(breaks = seq(-10,10,2)) +
         geom_segment(aes(xend = x_axis + (x_pull), 
                          yend = y_axis + (y_pull)), 
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("Vector Field with too much spacing")
+        ggtitle("Vector Field with too much spacing") +
+        theme(text=element_text(size=7))
 
 p1 + p2
 ```
@@ -362,7 +364,8 @@ there is a trade-off between vector spacing and vector length.
 ```{r, fig.align = 'center'}
 vector_frame1 = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# Generating evenly distributed values for x y coordinates
+# Vector field with larger spacing and arrows
+
 for(i in seq(-10, 10, by=2)) {
   for(j in seq(-10, 10, by=2)) {
     vec <- c(i, j) 
@@ -380,11 +383,13 @@ p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
                          yend = y_axis + (y_pull)), 
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("Opitmal Vector Field with more spacing")
+        ggtitle("Opitmal Vector Field with more spacing") +
+        theme(text=element_text(size=7))
 
 vector_frame2 = data.frame(x_axis = numeric(), y_axis = numeric())
 
-# Generating evenly distributed values for x y coordinates
+# Vector field with smaller spacing and arrows
+
 for(i in seq(-10, 10, by=1)) {
   for(j in seq(-10, 10, by=1)) {
     vec <- c(i, j) 
@@ -402,7 +407,8 @@ p2 <- ggplot(vector_frame2, aes(x = x_axis, y = y_axis) )+
                          yend = y_axis + (y_pull)), 
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("Optimal Vector Field with less spacing")
+        ggtitle("Optimal Vector Field with less spacing") +
+        theme(text=element_text(size=7))
 
 p1 + p2
 
@@ -412,7 +418,7 @@ p1 + p2
 So far we have looked at vector fields in 2 dimensions. However, it is common to 
 for vector fields to have 3 dimensions. While it is tempting to try to 3D plots for
 these vector fields, we strongly recommend against this as they are confusing. As
-shown in the plot below which had been taken from [this page](https://stackoverflow.com/questions/7130474/3d-vector-field-in-matplotlib)
+shown in the plot below which had been taken from [this page.](https://stackoverflow.com/questions/7130474/3d-vector-field-in-matplotlib)
 
 ![](Images/3DVF.png)
 
@@ -422,7 +428,7 @@ fields is: *Do I actually need to plot in 3 dimensions?*
 In some cases, one dimension may have a small contribution to the overall flow, so
 it could be excluded from the plot. You could check this by comparing contributions 
 of each direction to the magnitude of each vector using the following formulas 
-x^2/ (x^2+y^2+z^2) , y^2/ (x^2+y^2+z^2) & z^2/ (x^2+y^2+z^2). 
+x^2 / (x^2 + y^2 + z^2) , y^2 / (x^2 + y^2 + z^2) & z^2 / (x^2 + y^2 +z^2 ). 
 
 Another aspect to consider is the symmetry in the environment of the flow. For 
 example, flow in a cylindrical is symmetric in any radial direction; in other words,
@@ -442,7 +448,7 @@ of each axis, and plot vector fields at the cross-sections of these midpoints.
 ```{r, fig.align = 'center'}
 vector_frame = data.frame(x_axis = numeric(), y_axis = numeric(), z_axis = numeric()) 
 
-# Generating evenly distributed values for x y coordinates
+# Generating a vector field in 3D space
 for(i in -5:5) {
   for(j in -5:5) {
     for(k in -5:5) {
@@ -456,6 +462,7 @@ vector_frame$x_pull <- with(vector_frame, -x_axis/(sqrt((x_axis^2) + (y_axis^2) 
 vector_frame$y_pull <- with(vector_frame, y_axis/(sqrt((x_axis^2) + (y_axis^2) + (z_axis^2) ) ))
 vector_frame$z_pull <- with(vector_frame, -z_axis/(sqrt((x_axis^2) + (y_axis^2) + (z_axis^2) ) +0.5))
 
+# Finding midpoints of each axis
 x_range <- range(vector_frame$x_axis)
 mid_x <- (x_range[2] + x_range[1]) / 2
 
@@ -465,10 +472,12 @@ mid_y <- (y_range[2] + y_range[1]) / 2
 z_range <- range(vector_frame$z_axis)
 mid_z <- (z_range[2] + z_range[1]) / 2
 
+# Extracting each cross-section
 xy_plot <- vector_frame[vector_frame$z_axis == mid_z,]
 xz_plot <- vector_frame[vector_frame$y_axis == mid_y,]
 yz_plot <- vector_frame[vector_frame$x_axis == mid_x,]
 
+#Plotting the 3 cross-sections
 xy <- ggplot(xy_plot, aes(x = x_axis, y = y_axis) )+
         scale_x_continuous(breaks = seq(-5,5,1)) + 
         scale_y_continuous(breaks = seq(-5,5,1)) +
@@ -508,9 +517,10 @@ discuss some of their applications.
 
 Using vector fields to visualize flow is extremely important in fluid mechanics.
 Examples of its application include:
-1) Identifying regions of turbulence when designing airplanes or race cars
-2) Discovering the sources and sinks of pressure fields in meteorology
-3) Modelling flow through blood vessels with stents
+
+1. Identifying regions of turbulence when designing airplanes or race cars
+2. Discovering the sources and sinks of pressure fields in meteorology
+3. Modelling flow through blood vessels with stents
 
 ### Stability Analysis
 
