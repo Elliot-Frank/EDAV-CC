@@ -238,7 +238,7 @@ interpret. Therefore, the axis in ggplot must be fixed using the following code:
 coord_fixed()
 ```
 
-Below is an illustration of this discussion - note in both cases all vectors have 
+Below is an illustration of this discussion - note in both cases, all vectors have 
 the form (0.5,0.5). While the distortion appears to be small, it is easily avoidable
 and preserves an accurate relationship between the x and y axes. 
 
@@ -526,7 +526,7 @@ If it is not possible to remove one axis due to its small contribution or symmet
 in the vector field, we recommend plotting 3 cross-sectional vector fields in the 
 x-y, x-z and y-z planes. In this plot, the first thing to consider is where the 
 cross-sections are taken from in the 3D space. We recommend cross-sections 
-at the mid-point of each direction and adjusting the exact slices as appropriate. 
+at the midpoint of each direction and adjusting the exact slices as appropriate. 
 In the code below, we create a 3D vector field, show how to extract the midpoints 
 of each axis, and plot vector fields at the cross-sections of these midpoints.
 
@@ -571,7 +571,8 @@ xy <- ggplot(xy_plot, aes(x = x_axis, y = y_axis) )+
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
         ggtitle("x-y cross-section") +
-        coord_fixed()
+        coord_fixed() +
+        theme(text=element_text(size=8))
 
 xz <- ggplot(xz_plot, aes(x = x_axis, y = z_axis) )+
         scale_x_continuous(breaks = seq(-5,5,1)) + 
@@ -581,7 +582,8 @@ xz <- ggplot(xz_plot, aes(x = x_axis, y = z_axis) )+
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
         ggtitle("x-z cross-section") +
-        coord_fixed()
+        coord_fixed() +
+        theme(text=element_text(size=8))
 
 yz <- ggplot(yz_plot, aes(x = y_axis, y = z_axis) )+
         scale_x_continuous(breaks = seq(-5,5,1)) + 
@@ -591,13 +593,21 @@ yz <- ggplot(yz_plot, aes(x = y_axis, y = z_axis) )+
                      arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
         ggtitle("y-z cross-section") +
-        coord_fixed()
+        coord_fixed() +
+        theme(text=element_text(size=8))
 
 xy + xz + yz + plot_layout(ncol=2)
 ```
 
-## Application
+In summary, when visualizing 3D vector fields, you should avoid plotting in 3D. 
+Instead, you should consider if one dimension has a small contribution and, if so,
+eliminate it from the plot. You should also think about whether symmetries in the 
+vector field allow you to exclude a dimension from the plot. If neither option is
+possible, you should take cross-sections at the midpoints of the axes and plot the
+flows in 2D. 
 
+
+## Application
 Now that we've covered the fundamentals of plotting vector fields, we will briefly
 discuss some of their applications.
 
@@ -631,9 +641,49 @@ Examples applications of stability analysis include modelling:
 Therefore, given the differential equations describing the system, we can generate
 a data frame with the vectors at points in the environment. Then, using the skills
 learnt in this tutorial we can plot the vector fields, find the fixed points and
-determine their nature. 
+determine their nature.
+
 
 ### Conclusion
+In this tutorial we have covered the following topics:
+
+- how to generate vector fields and adjust their components
+- the trade-off between arrow length and arrow spacing
+- methods of plotting vector fields with 3 dimensions
+- applications of vector fields in flow analysis and stability analysis
+
+Using all of these tools, we hope the reader has a better understanding of how to 
+construct vector fields, elements to consider when creating high-quality vector 
+fields and where they could be applied in the real-world. 
+
+### Reflection
+From our research, there is limited documentation on plotting vector fields in R.
+Further, from resources that do exist, such as [Vectorfield Recipe](https://r-graphics.org/recipe-miscgraph-vectorfield),
+we feel that the tutorial dives too deep too quickly. Therefore, our goal in this
+tutorial is to provide a clear, easily accessible introduction to building graphs 
+of vector fields in R. Moreover, as engineering students who are familiar with 
+vector fields, we wanted to share some advice on how to produce high-quality plots
+and briefly explain how these plots are used in research and development. 
+
+In all, we believe that we have successfully captured the basic principles in an 
+accessible format for other readers and hope this tutorial contributes to a better
+understanding of vector fields in R. While we have had experience of plotting vector
+fields in Python, we have learned how to do so in R. We have also learned to 
+explicitly express the elements to consider when plotting high-quality vector fields.
+
+In terms of further work, we think it may have been useful to use actual vector
+field data sets, rather than only synthetically produced data, as it may provide
+the reader a more practical exposure to handling this data. Having said this, 
+the majority of vector field data is simulated, so we believe this omission is 
+not significant. Another area of further work could be to include illustrative 
+tutorials walking the reader through how to produce vector field plots specific 
+to flow analysis and stability analysis. However, we must be careful when making 
+these additions as the analysis of these applications requires a deep knowledge of
+the topic, which could confuse the reader and fall into the trap of other tutorials
+that dive "too deep too quick". 
+
+### Extra
+
 Overall, the motivation for our project was to provide a clear, easily accessible
 tutorial for building vector graphs. As engineering students, we have encountered
 vector graphs in many of our classes, but we found the existing documentation ([Vectorfield Recipe](https://r-graphics.org/recipe-miscgraph-vectorfield)) to be unnecessarily 
