@@ -34,7 +34,7 @@ pre { /* Code block - determines code spacing between lines */
     font-size: 12px;
 }
 </style>
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 # this prevents package loading message from appearing in the rendered version of your problem set
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
