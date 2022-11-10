@@ -63,14 +63,14 @@ engineering, and math. In this tutorial, we'll explain the basic components of
 vector field graphs, and how to build them in R. 
 
 From our research, the documentation available could use improvement, and thus our 
-goal is provide an accessible explanation of how to build such graphs in R. To 
+goal is provide an accessible explanation of how to build vector graphs in R. To 
 keep things clear, we'll build an example data set as we go, explaining all of 
-the required components of a vector field graph. Hopefully, after reading this
-tutorial, identifying the required components for vector graphs will be easier 
-when handling these data sets in the future.
+the required data components of vector field graphs. Hopefully, after reading this
+tutorial, you'll be able to easily put together vector graphs using other 
+data sets. 
 
 In our example data set, each observation represents one arrow, or vector, to be 
-plotted on our graph. As vectors communicate movement, each arrow will have a
+plotted on the graph. As vectors communicate movement, each arrow will have a
 starting point and an end point. Before we dive in, we've listed below the four 
 data columns required for building a vector graph, each of which we will build 
 in our example data set.
@@ -83,7 +83,7 @@ in our example data set.
 First, we will require two data columns serving as x and y coordinates for 
 placement of the arrow on the graph. These initial coordinates, which we 
 will call x_axis and y_axis, will place the base of each arrow on the vector 
-graphs. Stated otherwise, together the x_axis and y_axis columns provide the 
+graph. Stated otherwise, together the x_axis and y_axis columns provide the 
 starting point for each arrow on the graph.
 
 In the code below, we start building our example data set by placing the base
@@ -124,9 +124,9 @@ from the base the arrow should extend in the given direction.
 
 You'll notice in the code below, the x_pull and y_pull values are being added
 to the starting point values (x_axis & y_axis) in the geom_segment function. 
-The variables within 'aes', which dictate the end points of a vector are conveniently 
+The variables within 'aes', which dictate the end points of a vector, are conveniently 
 named 'xend' and 'yend'. By altering the 'xend' and 'yend' values, we place
-the coordinates of a vectors endpoint.
+the coordinates of a vector's endpoint.
 
 For example, if I set only the y_pull equal to 0.5, you'll notice that all of the 
 arrows are being pulled in an upward direction.
@@ -321,7 +321,7 @@ and distorts the relative strength of vectors in the graph. While this qualitati
 representation is acceptable in most cases of plotting vector fields, it is 
 possible to add color to arrows based on their magnitude - see below. Moreover, 
 above the color bar we can add a title explaining the units that the colors 
-represent (eg m/s). For this example, we'll create a new data set with x_axis 
+represent (e.g. m/s). For this example, we'll create a new data set with x_axis 
 and y_axis values ranging from -10 to 10.
 
 ```{r, fig.align = 'center'}
@@ -407,7 +407,7 @@ p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
                          yend = y_axis + (y_pull)), 
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("Vector Field with not enough spacing") +
+        ggtitle("Not enough spacing") +
         theme(text=element_text(size=9)) +
         coord_fixed()
 
@@ -431,7 +431,7 @@ p2 <- ggplot(vector_frame2, aes(x = x_axis, y = y_axis) )+
                          yend = y_axis + (y_pull)), 
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("Vector Field with too much spacing") +
+        ggtitle("Too much spacing") +
         theme(text=element_text(size=9)) +
         coord_fixed()
 
@@ -466,7 +466,7 @@ p1 <- ggplot(vector_frame1, aes(x = x_axis, y = y_axis) )+
                          yend = y_axis + (y_pull)), 
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("Opitmal Vector Field with more spacing") +
+        ggtitle("Opitmal with more spacing") +
         theme(text=element_text(size=9)) +
         coord_fixed()
 
@@ -491,7 +491,7 @@ p2 <- ggplot(vector_frame2, aes(x = x_axis, y = y_axis) )+
                          yend = y_axis + (y_pull)), 
                          arrow = arrow(length = unit(0.1, "cm")), size = 0.25) +
         geom_vline(xintercept=0, size=0.15) + geom_hline(yintercept=0, size=0.15) +
-        ggtitle("Optimal Vector Field with less spacing") +
+        ggtitle("Optimal with less spacing") +
         theme(text=element_text(size=9)) +
         coord_fixed()
 
@@ -501,14 +501,14 @@ p1 + p2
 
 ## Dealing with 3D
 So far we have looked at vector fields in 2 dimensions. However, it is common to 
-for vector fields to have 3 dimensions. While it is tempting to try to 3D plots for
-these vector fields, we strongly recommend against this as they are confusing. As
-shown in the plot below which had been taken from [this page.](https://stackoverflow.com/questions/7130474/3d-vector-field-in-matplotlib)
+for vector fields to have 3 dimensions. While it is tempting to try building 3D 
+plots for these vector fields, we strongly recommend against as they are confusing. As
+shown in the plot below, which had been taken from [this page.](https://stackoverflow.com/questions/7130474/3d-vector-field-in-matplotlib)
 
 ![](Images/3DVF.png)
 
-Therefore, the first thing we recommend you to consider when plotting 3D vector
-fields is: *Do I actually need to plot in 3 dimensions?*
+Therefore, the first thing to consider when plotting 3D vector
+fields should be: *Do I actually need to plot in 3 dimensions?*
 
 In some cases, one dimension may have a small contribution to the overall flow, so
 it could be excluded from the plot. You could check this by comparing contributions 
@@ -522,7 +522,7 @@ in the z-x and z-y plots, see graph below for visual explanation.
 
 ![](Images/Pipe.png)
 
-If it is not possible to remove one axis due to its small contribution or symmetry 
+If it is not possible to remove one axis due to its small contribution, or symmetry 
 in the vector field, we recommend plotting 3 cross-sectional vector fields in the 
 x-y, x-z and y-z planes. In this plot, the first thing to consider is where the 
 cross-sections are taken from in the 3D space. We recommend cross-sections 
@@ -678,7 +678,7 @@ the majority of vector field data is simulated, so we believe this omission is
 not significant. Another area of further work could be to include illustrative 
 tutorials walking the reader through how to produce vector field plots specific 
 to flow analysis and stability analysis. However, we must be careful when making 
-these additions as the analysis of these applications requires a deep knowledge of
+these additions as the analyses of these applications requires a deep knowledge of
 the topic, which could confuse the reader and fall into the trap of other tutorials
 that dive "too deep too quick". 
 
